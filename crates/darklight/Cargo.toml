@@ -52,8 +52,9 @@ label = "Darklight"
 [package.metadata.android.application.activity]
 config_changes = "orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|uiMode"
 
-# Release APKs are signed with the Android debug keystore so they are installable
-# by sideloading. This is NOT suitable for app stores; see docs/ROADMAP.md.
+# Release APKs are signed with a throwaway keystore so they can be sideloaded. This is NOT
+# suitable for app stores; see docs/ROADMAP.md. The path is relative to this crate and is
+# git-ignored; create it with the keytool command in the README (CI does this automatically).
 [package.metadata.android.signing.release]
-path = "$HOME/.android/debug.keystore"
+path = ".signing/sideload.keystore"
 keystore_password = "android"

@@ -116,15 +116,14 @@ jobs:
 
       - name: Create the signing keystore
         # Sideload-grade signing only; see docs/ROADMAP.md (Phase 2) for real release signing.
+        # The path must match [package.metadata.android.signing.release] in crates/darklight/Cargo.toml.
         run: |
-          mkdir -p ~/.android
-          if [ ! -f ~/.android/debug.keystore ]; then
-            keytool -genkey -v \
-              -keystore ~/.android/debug.keystore \
-              -storepass android -keypass android \
-              -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-          fi
+          mkdir -p crates/darklight/.signing
+          keytool -genkey -v \
+            -keystore crates/darklight/.signing/sideload.keystore \
+            -storepass android -keypass android \
+            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Darklight Sideload,O=Darklight,C=US"
 
       - name: Build APK
         run: cargo apk build --release --lib -p darklight

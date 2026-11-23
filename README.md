@@ -58,11 +58,15 @@ Locally you need the Android SDK and NDK, the `aarch64-linux-android` Rust targe
 
 ```sh
 cargo install cargo-apk --locked
+mkdir -p crates/darklight/.signing
+keytool -genkey -keystore crates/darklight/.signing/sideload.keystore \
+  -storepass android -keypass android -alias androiddebugkey \
+  -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Darklight Sideload"
 cargo apk build --release --lib -p darklight
 ```
 
-The APK is signed with the Android debug keystore (`~/.android/debug.keystore`). That is fine
-for sideloading and testing, and not suitable for an app store. See the roadmap.
+The APK is signed with a throwaway keystore (the `keytool` command above, git-ignored). That is
+fine for sideloading and testing, and not suitable for an app store. See the roadmap.
 
 ## Contributing
 

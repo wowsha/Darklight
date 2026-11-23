@@ -5,3 +5,4 @@
 *.AppImage
 *.keystore
 .DS_Store
+.signing/
