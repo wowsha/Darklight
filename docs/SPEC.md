@@ -41,8 +41,9 @@ The line is drawn between the **engine** (ours) and **platform plumbing** (borro
 | GPU access | Borrow | `wgpu` |
 | URL parsing | Borrow (WHATWG URL is subtle and security-relevant) | `url` |
 | HTTP and TLS | Borrow | `ureq`, `rustls` |
-| Font rasterization, shaping | Borrow, decision pending (see roadmap open questions) | e.g. `fontdue`, `ab_glyph`, `rustybuzz` |
-| Image decoding (PNG, JPEG, ...) | Decision pending (see roadmap open questions) | tbd |
+| Font rasterization | Borrow (decided) | `fontdue` |
+| Text shaping (ligatures, complex scripts) | Borrow, deferred to Phase 2 | `rustybuzz` |
+| Image decoding | Borrow small crates (decided) | `png`, `zune-jpeg`; GIF/WebP later |
 
 Rules:
 
@@ -50,7 +51,7 @@ Rules:
    dependencies (`darklight-paint` depends only on our own crates).
 2. Any new third-party dependency needs a one-line justification in the pull request and must
    have a permissive licence (MIT, Apache-2.0, BSD, ISC, Zlib, Unicode, MPL-2.0 for unmodified
-   use). No GPL/AGPL/LGPL.
+   use). No GPL/AGPL/LGPL. Bundled font files may use the SIL OFL 1.1.
 3. If we borrow something in a "write ourselves" row, that is a spec change, not a quiet
    dependency bump.
 

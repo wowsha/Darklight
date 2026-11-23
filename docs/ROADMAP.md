@@ -25,13 +25,12 @@ FR-23 in the spec.
    encoding sniffing, run the html5lib tree-construction tests.
 2. **CSS Syntax L3 tokenizer**, replace the hand-rolled rule parser; selectors with combinators and
    attributes; `darklight-style` crate with cascade, inheritance, computed values, UA stylesheet.
-3. **Text.** Pick the font stack (open question 2), bundle a font, glyph atlas on the GPU, line
-   breaking.
+3. **Text.** `fontdue` + bundled Inter, glyph atlas on the GPU, line breaking.
 4. **Layout.** Block formatting context, inline formatting context, margin collapsing, floats
    deferred. Box tree plus display list generation.
 5. **Renderer.** Turn the display list into `wgpu` draw calls (rects, glyphs, borders, images);
    software canvas as the test reference.
-6. **Images.** PNG and JPEG (open question 1).
+6. **Images.** PNG and JPEG via the `png` and `zune-jpeg` crates.
 7. **Shell.** Address bar, back/forward/reload, scrolling, link clicks, error pages, network on a
    worker thread.
 8. **Quality gates.** Fuzz the HTML and CSS tokenizers, `cargo-deny`, reftests.
@@ -66,22 +65,26 @@ without crashing on any input from the fuzz corpus.
 - Accessibility tree.
 - Performance work: incremental layout, GPU rasterization, parallel style.
 
+## Decisions
+
+Recorded so we do not relitigate them. Change one by editing this list and `SPEC.md` together.
+
+- **Images:** use small permissive crates, `png` and `zune-jpeg` (both MIT/Apache-2.0). Image
+  decoding is plumbing, not the engine.
+- **Fonts:** `fontdue` for rasterization (pure Rust, MIT/Apache-2.0/Zlib) with our own glyph atlas
+  on the GPU. Shaping with `rustybuzz` is deferred to Phase 2; Phase 1 does simple left-to-right
+  layout. Bundled UI and default page font: **Inter** (SIL OFL 1.1), with a system-font fallback
+  later. Fallback fonts are a Phase 2 item.
+- **Name:** no name-collision check is planned; the project stays "Darklight".
+
 ## Open questions
 
 Each gets a decision (and an entry in `SPEC.md`) before the work that needs it starts.
 
-1. **Image decoding.** Write PNG/JPEG decoders ourselves, or use small permissive crates (`png`,
-   `zune-jpeg`)? Decoding is plumbing, not the engine, so the default is to borrow, but a from-scratch
-   PNG decoder is a nice self-contained project if we want the purity. *Needed before Phase 1 step 6.*
-2. **Font stack.** Candidates: `fontdue` (simple rasterizer), `ab_glyph`, `rustybuzz` for shaping,
-   or `cosmic-text` (everything, but large and opinionated). Also: which bundled font (Inter, Noto
-   Sans, DejaVu; all permissively licensed). *Needed before Phase 1 step 3.*
-3. **Rendering approach.** Immediate-mode wgpu with a glyph atlas and instanced rects (simple) versus
+1. **Rendering approach.** Immediate-mode wgpu with a glyph atlas and instanced rects (simple) versus
    a tile-based compositor (faster to scroll, much more work). Default: simple first.
-4. **Android build tooling.** `cargo-apk` is used today. If it stalls, alternatives are `xbuild` or
+2. **Android build tooling.** `cargo-apk` is used today. If it stalls, alternatives are `xbuild` or
    `cargo-ndk` with a Gradle project (which also gives us a path to AAB for the Play Store).
-5. **Search and default homepage.** Which search engine (if any) in the address bar, and whether the
+3. **Search and default homepage.** Which search engine (if any) in the address bar, and whether the
    default page is local. Privacy-preserving default needed. *Phase 2.*
-6. **Name collision check.** "Darklight" is a common word; check for conflicting projects before the
-   first public release.
-7. **Contribution policy.** DCO sign-off or no formality, code of conduct, issue templates.
+4. **Contribution policy.** DCO sign-off or no formality, code of conduct, issue templates.

@@ -20,7 +20,7 @@ platform plumbing: windowing (`winit`), GPU access (`wgpu`), networking and TLS
 | --- | --- |
 | [`docs/SPEC.md`](docs/SPEC.md) | Goals, requirements, standards targeted, security model |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Crate layout, rendering pipeline, platform notes |
-| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Phases, milestones, exit criteria, open questions |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Phases, milestones, exit criteria, decisions, open questions |
 
 ## Repository layout
 
