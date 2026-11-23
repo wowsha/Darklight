@@ -1,0 +1,11 @@
+[package]
+name = "darklight-css"
+description = "CSS parser and value types for the Darklight browser"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+
+[dependencies]

@@ -1,0 +1,25 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+default-members = ["crates/darklight"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/wowsha/darklight"
+rust-version = "1.85"
+authors = ["Darklight contributors"]
+
+[workspace.dependencies]
+darklight-html = { path = "crates/darklight-html", version = "0.0.1" }
+darklight-css = { path = "crates/darklight-css", version = "0.0.1" }
+darklight-layout = { path = "crates/darklight-layout", version = "0.0.1" }
+darklight-paint = { path = "crates/darklight-paint", version = "0.0.1" }
+darklight-net = { path = "crates/darklight-net", version = "0.0.1" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true

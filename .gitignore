@@ -1,0 +1,7 @@
+/target
+/AppDir
+/dist
+*.apk
+*.AppImage
+*.keystore
+.DS_Store

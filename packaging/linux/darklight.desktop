@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Darklight
+GenericName=Web Browser
+Comment=A from-scratch web browser written in Rust
+Exec=darklight
+Icon=darklight
+Terminal=false
+Categories=Network;WebBrowser;
+StartupWMClass=darklight

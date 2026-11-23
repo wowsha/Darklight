@@ -1,0 +1,13 @@
+[package]
+name = "darklight-paint"
+description = "Display list and software canvas for the Darklight browser"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+
+[dependencies]
+darklight-css.workspace = true
+darklight-layout.workspace = true

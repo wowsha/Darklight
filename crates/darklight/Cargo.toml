@@ -1,0 +1,59 @@
+[package]
+name = "darklight"
+description = "Darklight: a from-scratch web browser written in Rust"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+
+[lib]
+name = "darklight_app"
+crate-type = ["lib", "cdylib"]
+
+[[bin]]
+name = "darklight"
+path = "src/main.rs"
+
+[dependencies]
+darklight-html.workspace = true
+darklight-css.workspace = true
+darklight-layout.workspace = true
+darklight-paint.workspace = true
+log = "0.4"
+pollster = "1"
+wgpu = "30"
+winit = "0.30"
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+env_logger = "0.11"
+
+[target.'cfg(target_os = "android")'.dependencies]
+android-activity = { version = "0.6", features = ["native-activity"] }
+android_logger = "0.15"
+winit = { version = "0.30", features = ["android-native-activity"] }
+
+# ---- Android packaging (cargo-apk) -----------------------------------------
+# Build with: cargo apk build --release --lib -p darklight
+[package.metadata.android]
+package = "io.github.wowsha.darklight"
+apk_name = "Darklight"
+build_targets = ["aarch64-linux-android"]
+uses_permission = [{ name = "android.permission.INTERNET" }]
+
+[package.metadata.android.sdk]
+min_sdk_version = 26
+target_sdk_version = 34
+
+[package.metadata.android.application]
+label = "Darklight"
+
+[package.metadata.android.application.activity]
+config_changes = "orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|uiMode"
+
+# Release APKs are signed with the Android debug keystore so they are installable
+# by sideloading. This is NOT suitable for app stores; see docs/ROADMAP.md.
+[package.metadata.android.signing.release]
+path = "$HOME/.android/debug.keystore"
+keystore_password = "android"
