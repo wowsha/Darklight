@@ -68,17 +68,20 @@ impl Tokenizer {
                 let start = self.pos;
                 if let Some(tok) = self.try_markup() {
                     self.flush_text(&mut text);
-                    let raw_text_tag = match &tok {
-                        Token::StartTag {
-                            name, self_closing, ..
-                        } if !self_closing && (name == "script" || name == "style") => {
-                            Some(name.clone())
-                        }
+                    // Content of these elements is not markup. `script` and `style` are raw
+                    // text; `title` and `textarea` are RCDATA (character references decode).
+                    // A trailing `/` does not change that for non-void elements.
+                    let raw_text = match &tok {
+                        Token::StartTag { name, .. } => match name.as_str() {
+                            "script" | "style" => Some((name.clone(), false)),
+                            "title" | "textarea" => Some((name.clone(), true)),
+                            _ => None,
+                        },
                         _ => None,
                     };
                     self.tokens.push(tok);
-                    if let Some(name) = raw_text_tag {
-                        self.read_raw_text(&name);
+                    if let Some((name, decode)) = raw_text {
+                        self.read_raw_text(&name, decode);
                     }
                 } else {
                     self.pos = start + 1;
@@ -92,16 +95,26 @@ impl Tokenizer {
         self.flush_text(&mut text);
     }
 
-    /// Reads everything up to the matching `</name` as one raw text token.
-    fn read_raw_text(&mut self, name: &str) {
+    /// Reads everything up to the matching `</name` as one text token.
+    fn read_raw_text(&mut self, name: &str, decode: bool) {
         let closer = format!("</{name}");
+        let closer_len = closer.chars().count();
         let mut raw = String::new();
-        while self.peek().is_some() && !self.starts_with_ci(&closer) {
+        while self.peek().is_some() {
+            // An end tag only counts if the name is followed by whitespace, `/`, `>` or EOF.
+            if self.starts_with_ci(&closer)
+                && self
+                    .peek_at(closer_len)
+                    .is_none_or(|c| c.is_ascii_whitespace() || c == '/' || c == '>')
+            {
+                break;
+            }
             raw.push(self.chars[self.pos]);
             self.pos += 1;
         }
         if !raw.is_empty() {
-            self.tokens.push(Token::Text(raw));
+            let text = if decode { decode_entities(&raw) } else { raw };
+            self.tokens.push(Token::Text(text));
         }
     }
 
@@ -362,6 +375,26 @@ mod tests {
         let toks = tokenize("<script>if (a < b && c) {}</script>");
         assert_eq!(toks[1], Token::Text("if (a < b && c) {}".into()));
         assert_eq!(toks[2], Token::EndTag("script".into()));
+    }
+
+    #[test]
+    fn title_is_rcdata_and_decodes_entities() {
+        let toks = tokenize("<title>a &amp; <b></title>");
+        assert_eq!(toks[1], Token::Text("a & <b>".into()));
+        assert_eq!(toks[2], Token::EndTag("title".into()));
+    }
+
+    #[test]
+    fn raw_text_only_ends_at_a_real_end_tag() {
+        let toks = tokenize("<style>a</styles>b</style>");
+        assert_eq!(toks[1], Token::Text("a</styles>b".into()));
+        assert_eq!(toks[2], Token::EndTag("style".into()));
+    }
+
+    #[test]
+    fn self_closing_script_still_reads_raw_text() {
+        let toks = tokenize("<script/>x<y></script>");
+        assert_eq!(toks[1], Token::Text("x<y>".into()));
     }
 
     #[test]

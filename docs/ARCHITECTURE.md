@@ -31,7 +31,7 @@ the display-list renderer are Phase 1.
 
 | Crate | Depends on | Responsibility |
 | --- | --- | --- |
-| `darklight-html` | nothing | Tokenizer, tree builder, arena DOM |
+| `darklight-html` | nothing | Tokenizer, insertion-mode tree builder (always yields `html`/`head`/`body`; depth-limited), arena DOM, html5lib-format `Document::dump()` for golden tests |
 | `darklight-css` | nothing | Stylesheet / selector / value parsing, specificity, simple-selector matching |
 | `darklight-layout` | nothing | `Rect`, edge sizes, box model; later the layout algorithms |
 | `darklight-paint` | `css`, `layout` | `DisplayList`, software `Canvas` |

@@ -21,8 +21,15 @@ been exercised end to end yet; the first CI run is the real test, expect small f
 Goal: load a static HTML/CSS page from the network and read it. Covers FR-1 to FR-12 and FR-20 to
 FR-23 in the spec.
 
-1. **Real HTML parsing.** Conformant tree construction (implied `html/head/body`, tables can wait),
-   encoding sniffing, run the html5lib tree-construction tests.
+1. **Real HTML parsing.** *In progress.*
+   - [x] Insertion-mode tree builder: implied `html`/`head`/`body`, scope checks, implied end
+     tags, `li`/`dd`/`dt`/`p`/heading handling, table-lite, RCDATA for `title`/`textarea`,
+     nesting depth limit, html5lib-format tree dump, 3000-case garbage-input test.
+   - [ ] Adoption agency algorithm and active formatting elements (`<b><i></b></i>`).
+   - [ ] Real table insertion modes (implied `tbody`, foster parenting), `select`, `template`.
+   - [ ] Tokenizer as a proper state machine (named character references table, CDATA, bogus
+     comments, EOF-in-tag rules), then encoding sniffing.
+   - [ ] Run the html5lib tree-construction corpus in CI with an allow-list of known failures.
 2. **CSS Syntax L3 tokenizer**, replace the hand-rolled rule parser; selectors with combinators and
    attributes; `darklight-style` crate with cascade, inheritance, computed values, UA stylesheet.
 3. **Text.** `fontdue` + bundled Inter, glyph atlas on the GPU, line breaking.

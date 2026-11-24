@@ -98,6 +98,60 @@ impl Document {
         id
     }
 
+    /// Appends `text` to `parent`, merging into a trailing text node if there is one.
+    pub fn append_text(&mut self, parent: NodeId, text: &str) {
+        if text.is_empty() {
+            return;
+        }
+        if let Some(&last) = self.nodes[parent].children.last() {
+            if let NodeData::Text(existing) = &mut self.nodes[last].data {
+                existing.push_str(text);
+                return;
+            }
+        }
+        self.append(parent, NodeData::Text(text.to_string()));
+    }
+
+    /// Mutable access to an element's data, or `None` if `id` is not an element.
+    pub fn element_mut(&mut self, id: NodeId) -> Option<&mut ElementData> {
+        match &mut self.nodes[id].data {
+            NodeData::Element(e) => Some(e),
+            _ => None,
+        }
+    }
+
+    /// Serializes the tree in the html5lib tree-construction test format, so the parser
+    /// can be checked against that corpus. Attributes are sorted by name.
+    pub fn dump(&self) -> String {
+        let mut out = String::new();
+        let mut stack: Vec<(NodeId, usize)> = self.nodes[Self::ROOT]
+            .children
+            .iter()
+            .rev()
+            .map(|&c| (c, 0))
+            .collect();
+        while let Some((id, depth)) = stack.pop() {
+            let pad = "  ".repeat(depth);
+            let node = &self.nodes[id];
+            match &node.data {
+                NodeData::Document => continue,
+                NodeData::Doctype(name) => out.push_str(&format!("| {pad}<!DOCTYPE {name}>\n")),
+                NodeData::Comment(text) => out.push_str(&format!("| {pad}<!-- {text} -->\n")),
+                NodeData::Text(text) => out.push_str(&format!("| {pad}\"{text}\"\n")),
+                NodeData::Element(e) => {
+                    out.push_str(&format!("| {pad}<{}>\n", e.tag));
+                    let mut attrs: Vec<&(String, String)> = e.attrs.iter().collect();
+                    attrs.sort();
+                    for (name, value) in attrs {
+                        out.push_str(&format!("| {pad}  {name}=\"{value}\"\n"));
+                    }
+                }
+            }
+            stack.extend(node.children.iter().rev().map(|&c| (c, depth + 1)));
+        }
+        out
+    }
+
     /// Depth-first, document-order list of all nodes below (and including) `start`.
     pub fn descendants(&self, start: NodeId) -> Vec<NodeId> {
         let mut out = Vec::new();
